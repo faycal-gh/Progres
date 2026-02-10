@@ -1,0 +1,54 @@
+spring:
+  application:
+    name: webetu-api
+  config:
+    import: optional:file:../.env[.properties]
+
+server:
+  port: 8080
+  error:
+    include-message: always
+    include-binding-errors: always
+  tomcat:
+    max-http-form-post-size: 2MB
+    max-swallow-size: 2MB
+  max-http-request-header-size: 8KB
+
+jwt:
+  secret: ${JWT_SECRET}
+  expiration: 900000
+  refresh-expiration: 2592000000
+
+external-api:
+  base-url: https://progres.mesrs.dz/api
+  timeout: 10000
+
+rate-limit:
+  requests: 100
+  window-minutes: 15
+
+cors:
+  allowed-origins: ${CORS_ALLOWED_ORIGINS:http://localhost:3000,http://localhost:5173}
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  max-age: 3600
+
+groq:
+  api-key: ${GROQ_API_KEY:}
+  base-url: https://api.groq.com/openai/v1
+  model: llama-3.3-70b-versatile
+  timeout: 30000
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info
+  endpoint:
+    health:
+      show-details: when_authorized
+
+logging:
+  level:
+    root: INFO
+    com.progress: DEBUG
+    org.springframework.security: INFO

@@ -1,0 +1,56 @@
+name: Deploy
+
+on:
+  workflow_run:
+    workflows: ["CI Pipeline"]
+    types:
+      - completed
+    branches: [main]
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Deployment environment'
+        required: true
+        default: 'production'
+        type: choice
+        options:
+          - production
+          - staging
+
+jobs:
+  deploy:
+    name: Deploy to Render
+    runs-on: ubuntu-latest
+    if: ${{ github.event.workflow_run.conclusion == 'success' || github.event_name == 'workflow_dispatch' }}
+
+    steps:
+      - name: Trigger Render Deploy
+        run: |
+          curl -sf "${{ secrets.RENDER_DEPLOY_HOOK_URL }}" || {
+            echo "Deploy hook failed"
+            exit 1
+          }
+
+      - name: Wait for deployment
+        run: |
+          echo "Waiting for Render deployment to propagate..."
+          sleep 60
+
+      - name: Health check
+        run: |
+          APP_URL="${{ secrets.APP_URL }}"
+          if [ -n "$APP_URL" ]; then
+            echo "Running health check..."
+            for i in 1 2 3; do
+              if curl -sf "$APP_URL/actuator/health" > /dev/null 2>&1; then
+                echo "Health check passed!"
+                exit 0
+              fi
+              echo "Attempt $i failed, retrying in 15s..."
+              sleep 15
+            done
+            echo "Health check failed after 3 attempts"
+            exit 1
+          else
+            echo "APP_URL not set, skipping health check"
+          fi

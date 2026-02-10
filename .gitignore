@@ -1,0 +1,29 @@
+# Dependencies
+node_modules/
+.pnpm-store
+
+# Environment Variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.development
+.env.test
+.env.production
+
+# Build outputs
+dist/
+build/
+target/
+out/
+
+# IDEs
+.idea/
+.vscode/
+*.swp
+*.iml
+
+# OS
+.DS_Store
+Thumbs.db

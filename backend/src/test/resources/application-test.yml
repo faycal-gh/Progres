@@ -1,0 +1,35 @@
+# Test Configuration
+spring:
+  application:
+    name: webetu-api-test
+
+server:
+  port: 0  # Random port for tests
+
+# JWT Configuration for tests
+jwt:
+  secret: dGVzdC11bml0LXRlc3Qtc2VjcmV0LWtleS1kby1ub3QtdXNlLWluLXByb2R1Y3Rpb24tMjU2LWJpdHM=
+  expiration: 900000
+  refresh-expiration: 604800000
+
+# External API - will be overridden by WireMock in integration tests
+external-api:
+  base-url: http://localhost:${wiremock.server.port:8089}
+  timeout: 5000
+
+# Rate Limiting - disabled for tests
+rate-limit:
+  requests: 10000
+  window-minutes: 1
+
+# CORS - permissive for tests
+cors:
+  allowed-origins: "*"
+  allowed-methods: GET,POST,PUT,DELETE,OPTIONS
+  max-age: 3600
+
+# Logging
+logging:
+  level:
+    root: WARN
+    com.progress: DEBUG

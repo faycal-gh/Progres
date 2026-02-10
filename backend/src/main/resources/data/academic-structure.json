@@ -1,0 +1,474 @@
+{
+  "universities": {
+    "universite_des_sciences_et_de_la_technologie_houari_boumediene_alger": {
+      "name": "Université des Sciences et de la Technologie Houari Boumediène",
+      "nameAr": "جامعة هواري بومدين للعلوم و التكنولوجيا الجزائر",
+      "description": "University of Science and Technology Houari Boumediene (USTHB) academic structure.",
+      "fields": [
+        {
+          "code": "ST",
+          "name": "Sciences et Technologies",
+          "nameAr": "علوم وتكنولوجيا",
+          "description": "Science and Technology field",
+          "levels": {
+            "L1": {
+              "name": "1ère année Licence",
+              "type": "common_core",
+              "nextOptions": [
+                "L2_GM",
+                "L2_GC",
+                "L2_ELT",
+                "L2_HYDRO",
+                "L2_AUTO"
+              ]
+            },
+            "L2": {
+              "majors": [
+                {
+                  "code": "L2_GM",
+                  "name": "Génie Mécanique",
+                  "nameAr": "هندسة ميكانيكية",
+                  "nextOptions": [
+                    "L3_CM",
+                    "L3_SDM",
+                    "L3_ENERG"
+                  ]
+                },
+                {
+                  "code": "L2_GC",
+                  "name": "Génie Civil",
+                  "nameAr": "هندسة مدنية",
+                  "nextOptions": [
+                    "L3_GC"
+                  ]
+                },
+                {
+                  "code": "L2_ELT",
+                  "name": "Électrotechnique",
+                  "nameAr": "كهروتقني",
+                  "nextOptions": [
+                    "L3_ELT"
+                  ]
+                },
+                {
+                  "code": "L2_HYDRO",
+                  "name": "Hydraulique",
+                  "nameAr": "هيدروليك",
+                  "nextOptions": [
+                    "L3_HYDRO"
+                  ]
+                },
+                {
+                  "code": "L2_AUTO",
+                  "name": "Automatique",
+                  "nameAr": "آلية",
+                  "nextOptions": [
+                    "L3_AUTO"
+                  ]
+                }
+              ]
+            },
+            "L3": {
+              "specialities": [
+                {
+                  "code": "L3_CM",
+                  "name": "Construction Mécanique",
+                  "nameAr": "بناء ميكانيكي",
+                  "parentMajor": "L2_GM",
+                  "masterOptions": [
+                    "M_CIM",
+                    "M_FAB"
+                  ]
+                },
+                {
+                  "code": "L3_SDM",
+                  "name": "Science des Matériaux",
+                  "nameAr": "علوم المواد",
+                  "parentMajor": "L2_GM",
+                  "masterOptions": [
+                    "M_MAT"
+                  ]
+                },
+                {
+                  "code": "L3_ENERG",
+                  "name": "Énergétique",
+                  "nameAr": "طاقوية",
+                  "parentMajor": "L2_GM",
+                  "masterOptions": [
+                    "M_ENERG",
+                    "M_THERM"
+                  ]
+                },
+                {
+                  "code": "L3_GC",
+                  "name": "Génie Civil",
+                  "nameAr": "هندسة مدنية",
+                  "parentMajor": "L2_GC",
+                  "masterOptions": [
+                    "M_STRUCT",
+                    "M_GEO",
+                    "M_CONST"
+                  ]
+                },
+                {
+                  "code": "L3_ELT",
+                  "name": "Électrotechnique",
+                  "nameAr": "كهروتقني",
+                  "parentMajor": "L2_ELT",
+                  "masterOptions": [
+                    "M_ELT_IND",
+                    "M_ELT_AUTO"
+                  ]
+                },
+                {
+                  "code": "L3_HYDRO",
+                  "name": "Hydraulique",
+                  "nameAr": "هيدروليك",
+                  "parentMajor": "L2_HYDRO",
+                  "masterOptions": [
+                    "M_HYDRO"
+                  ]
+                },
+                {
+                  "code": "L3_AUTO",
+                  "name": "Automatique",
+                  "nameAr": "آلية",
+                  "parentMajor": "L2_AUTO",
+                  "masterOptions": [
+                    "M_AUTO_IND"
+                  ]
+                }
+              ]
+            }
+          },
+          "masterSpecialities": [
+            {
+              "code": "M_CIM",
+              "name": "Conception et Industrialisation en Mécanique",
+              "nameAr": "تصميم وتصنيع ميكانيكي",
+              "parentSpeciality": "L3_CM"
+            },
+            {
+              "code": "M_FAB",
+              "name": "Fabrication Mécanique et Productique",
+              "nameAr": "تصنيع ميكانيكي وإنتاجية",
+              "parentSpeciality": "L3_CM"
+            },
+            {
+              "code": "M_MAT",
+              "name": "Science des Matériaux",
+              "nameAr": "علوم المواد",
+              "parentSpeciality": "L3_SDM"
+            },
+            {
+              "code": "M_ENERG",
+              "name": "Énergétique",
+              "nameAr": "طاقوية",
+              "parentSpeciality": "L3_ENERG"
+            },
+            {
+              "code": "M_THERM",
+              "name": "Thermique",
+              "nameAr": "حراريات",
+              "parentSpeciality": "L3_ENERG"
+            },
+            {
+              "code": "M_STRUCT",
+              "name": "Structures",
+              "nameAr": "هياكل",
+              "parentSpeciality": "L3_GC"
+            },
+            {
+              "code": "M_GEO",
+              "name": "Géotechnique",
+              "nameAr": "جيوتقني",
+              "parentSpeciality": "L3_GC"
+            },
+            {
+              "code": "M_CONST",
+              "name": "Construction",
+              "nameAr": "بناء",
+              "parentSpeciality": "L3_GC"
+            }
+          ]
+        },
+        {
+          "code": "MI",
+          "name": "Mathématiques et Informatique",
+          "nameAr": "رياضيات وإعلام آلي",
+          "description": "Mathematics and Computer Science field",
+          "levels": {
+            "L1": {
+              "name": "1ère année Licence",
+              "type": "common_core",
+              "nextOptions": [
+                "L2_INFO",
+                "L2_MATH"
+              ]
+            },
+            "L2": {
+              "majors": [
+                {
+                  "code": "L2_INFO",
+                  "name": "Informatique",
+                  "nameAr": "إعلام آلي",
+                  "nextOptions": [
+                    "L3_SI",
+                    "L3_ISIL",
+                    "L3_RSD"
+                  ]
+                },
+                {
+                  "code": "L2_MATH",
+                  "name": "Mathématiques",
+                  "nameAr": "رياضيات",
+                  "nextOptions": [
+                    "L3_MATH"
+                  ]
+                }
+              ]
+            },
+            "L3": {
+              "specialities": [
+                {
+                  "code": "L3_SI",
+                  "name": "Systèmes Informatiques",
+                  "nameAr": "أنظمة إعلامية",
+                  "parentMajor": "L2_INFO",
+                  "masterOptions": [
+                    "M_GL",
+                    "M_SIQ",
+                    "M_IL"
+                  ]
+                },
+                {
+                  "code": "L3_ISIL",
+                  "name": "Ingénierie des Systèmes d'Information et du Logiciel",
+                  "nameAr": "هندسة نظم المعلومات والبرمجيات",
+                  "parentMajor": "L2_INFO",
+                  "masterOptions": [
+                    "M_GL",
+                    "M_SIQ"
+                  ]
+                },
+                {
+                  "code": "L3_RSD",
+                  "name": "Réseaux et Systèmes Distribués",
+                  "nameAr": "شبكات وأنظمة موزعة",
+                  "parentMajor": "L2_INFO",
+                  "masterOptions": [
+                    "M_RSD",
+                    "M_SEC"
+                  ]
+                },
+                {
+                  "code": "L3_MATH",
+                  "name": "Mathématiques",
+                  "nameAr": "رياضيات",
+                  "parentMajor": "L2_MATH",
+                  "masterOptions": [
+                    "M_MATH_FOND",
+                    "M_MATH_APP"
+                  ]
+                }
+              ]
+            }
+          },
+          "masterSpecialities": [
+            {
+              "code": "M_GL",
+              "name": "Génie Logiciel",
+              "nameAr": "هندسة البرمجيات",
+              "parentSpeciality": "L3_SI"
+            },
+            {
+              "code": "M_SIQ",
+              "name": "Systèmes d'Information et Qualité",
+              "nameAr": "نظم المعلومات والجودة",
+              "parentSpeciality": "L3_SI"
+            },
+            {
+              "code": "M_IL",
+              "name": "Intelligence Artificielle",
+              "nameAr": "ذكاء اصطناعي",
+              "parentSpeciality": "L3_SI"
+            },
+            {
+              "code": "M_RSD",
+              "name": "Réseaux et Systèmes Distribués",
+              "nameAr": "شبكات وأنظمة موزعة",
+              "parentSpeciality": "L3_RSD"
+            },
+            {
+              "code": "M_SEC",
+              "name": "Sécurité Informatique",
+              "nameAr": "أمن المعلومات",
+              "parentSpeciality": "L3_RSD"
+            }
+          ]
+        },
+        {
+          "code": "SNV",
+          "name": "Sciences de la Nature et de la Vie",
+          "nameAr": "علوم الطبيعة والحياة",
+          "description": "Natural and Life Sciences field",
+          "levels": {
+            "L1": {
+              "name": "1ère année Licence",
+              "type": "common_core",
+              "nextOptions": [
+                "L2_BIO",
+                "L2_ECOL",
+                "L2_BIOCH"
+              ]
+            },
+            "L2": {
+              "majors": [
+                {
+                  "code": "L2_BIO",
+                  "name": "Biologie",
+                  "nameAr": "بيولوجيا",
+                  "nextOptions": [
+                    "L3_MICRO",
+                    "L3_BIOCH",
+                    "L3_BIO_PHYS"
+                  ]
+                },
+                {
+                  "code": "L2_ECOL",
+                  "name": "Écologie et Environnement",
+                  "nameAr": "علم البيئة والمحيط",
+                  "nextOptions": [
+                    "L3_ECOL"
+                  ]
+                }
+              ]
+            },
+            "L3": {
+              "specialities": [
+                {
+                  "code": "L3_MICRO",
+                  "name": "Microbiologie",
+                  "nameAr": "علم الأحياء الدقيقة",
+                  "parentMajor": "L2_BIO",
+                  "masterOptions": [
+                    "M_MICRO_APP",
+                    "M_MICRO_FOND"
+                  ]
+                },
+                {
+                  "code": "L3_BIOCH",
+                  "name": "Biochimie",
+                  "nameAr": "كيمياء حيوية",
+                  "parentMajor": "L2_BIO",
+                  "masterOptions": [
+                    "M_BIOCH"
+                  ]
+                },
+                {
+                  "code": "L3_ECOL",
+                  "name": "Écologie",
+                  "nameAr": "علم البيئة",
+                  "parentMajor": "L2_ECOL",
+                  "masterOptions": [
+                    "M_ECOL"
+                  ]
+                }
+              ]
+            }
+          },
+          "masterSpecialities": [
+            {
+              "code": "M_MICRO_APP",
+              "name": "Microbiologie Appliquée",
+              "nameAr": "علم الأحياء الدقيقة التطبيقي",
+              "parentSpeciality": "L3_MICRO"
+            },
+            {
+              "code": "M_BIOCH",
+              "name": "Biochimie",
+              "nameAr": "كيمياء حيوية",
+              "parentSpeciality": "L3_BIOCH"
+            }
+          ]
+        }
+      ]
+    },
+    "ecole_nationale_superieure_dinformatique_alger": {
+      "name": "École Nationale Supérieure d'Informatique",
+      "nameAr": "المدرسة الوطنية العليا للإعلام الآلي",
+      "description": "ESI (ex-INI) - 5-year engineering program in computer science.",
+      "type": "engineering",
+      "fields": [
+        {
+          "code": "INFO",
+          "name": "Informatique",
+          "nameAr": "إعلام آلي",
+          "description": "Computer Science Engineering",
+          "levels": {
+            "1CPI": {
+              "name": "1ère année Cycle Préparatoire Intégré",
+              "nameAr": "السنة الأولى تحضيري مدمج",
+              "type": "preparatory",
+              "nextOptions": [
+                "2CPI"
+              ]
+            },
+            "2CPI": {
+              "name": "2ème année Cycle Préparatoire Intégré",
+              "nameAr": "السنة الثانية تحضيري مدمج",
+              "type": "preparatory",
+              "nextOptions": [
+                "1CS"
+              ],
+              "note": "Concours national pour accéder au cycle supérieur"
+            },
+            "1CS": {
+              "name": "1ère année Cycle Supérieur",
+              "nameAr": "السنة الأولى ثانوي عالي",
+              "type": "senior",
+              "nextOptions": [
+                "2CS"
+              ]
+            },
+            "2CS": {
+              "name": "2ème année Cycle Supérieur",
+              "nameAr": "السنة الثانية ثانوي عالي",
+              "type": "senior",
+              "nextOptions": [
+                "3CS_SIQ",
+                "3CS_SIT",
+                "3CS_SIL"
+              ]
+            },
+            "3CS": {
+              "name": "3ème année Cycle Supérieur (Final Year)",
+              "nameAr": "السنة الثالثة ثانوي عالي (سنة التخرج)",
+              "type": "final",
+              "specialities": [
+                {
+                  "code": "3CS_SIQ",
+                  "name": "Systèmes Informatiques",
+                  "nameAr": "أنظمة إعلامية",
+                  "description": "Focus on computer systems, networks, and infrastructure"
+                },
+                {
+                  "code": "3CS_SIT",
+                  "name": "Systèmes d'Information et Technologies",
+                  "nameAr": "أنظمة المعلومات والتكنولوجيا",
+                  "description": "Focus on information systems, databases, and enterprise solutions"
+                },
+                {
+                  "code": "3CS_SIL",
+                  "name": "Systèmes d'Informatique et Logiciel",
+                  "nameAr": "أنظمة البرمجيات",
+                  "description": "Focus on software engineering and development"
+                }
+              ]
+            }
+          }
+        }
+      ]
+    }
+  }
+}
