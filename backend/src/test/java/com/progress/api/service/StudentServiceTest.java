@@ -10,12 +10,14 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.Mockito.mock;
 
 @DisplayName("StudentService Tests")
 class StudentServiceTest {
 
     private MockWebServer mockWebServer;
     private StudentService studentService;
+    private ExternalTokenStore externalTokenStore;
 
     @BeforeEach
     void setUp() throws IOException {
@@ -26,7 +28,8 @@ class StudentServiceTest {
                 .baseUrl(mockWebServer.url("/").toString())
                 .build();
 
-        studentService = new StudentService(webClient);
+        externalTokenStore = mock(ExternalTokenStore.class);
+        studentService = new StudentService(webClient, externalTokenStore);
     }
 
     @AfterEach
@@ -55,7 +58,7 @@ class StudentServiceTest {
                     .addHeader("Content-Type", "application/json"));
 
             // Act
-            Object result = studentService.getStudentData("test-uuid", "Bearer external-token");
+            Object result = studentService.getStudentData("test-uuid", "Bearer external-token").block();
 
             // Assert
             assertThat(result).isNotNull();
@@ -71,7 +74,7 @@ class StudentServiceTest {
                     .addHeader("Content-Type", "application/json"));
 
             // Act & Assert
-            assertThatThrownBy(() -> studentService.getStudentData("test-uuid", "invalid-token"))
+            assertThatThrownBy(() -> studentService.getStudentData("test-uuid", "invalid-token").block())
                     .isInstanceOf(ApiException.class)
                     .satisfies(ex -> {
                         ApiException apiEx = (ApiException) ex;
@@ -88,7 +91,7 @@ class StudentServiceTest {
                     .setBody("{\"error\": \"Student not found\"}"));
 
             // Act & Assert
-            assertThatThrownBy(() -> studentService.getStudentData("unknown-uuid", "Bearer token"))
+            assertThatThrownBy(() -> studentService.getStudentData("unknown-uuid", "Bearer token").block())
                     .isInstanceOf(ApiException.class)
                     .satisfies(ex -> {
                         ApiException apiEx = (ApiException) ex;
@@ -105,7 +108,7 @@ class StudentServiceTest {
                     .setBody("{\"error\": \"Internal server error\"}"));
 
             // Act & Assert
-            assertThatThrownBy(() -> studentService.getStudentData("test-uuid", "Bearer token"))
+            assertThatThrownBy(() -> studentService.getStudentData("test-uuid", "Bearer token").block())
                     .isInstanceOf(ApiException.class);
         }
     }
@@ -132,7 +135,7 @@ class StudentServiceTest {
                     .addHeader("Content-Type", "application/json"));
 
             // Act
-            Object result = studentService.getExamData("test-uuid", "exam-id-1", "Bearer external-token");
+            Object result = studentService.getExamData("test-uuid", "exam-id-1", "Bearer external-token").block();
 
             // Assert
             assertThat(result).isNotNull();
@@ -147,7 +150,7 @@ class StudentServiceTest {
                     .setBody("{\"error\": \"Unauthorized\"}"));
 
             // Act & Assert
-            assertThatThrownBy(() -> studentService.getExamData("test-uuid", "exam-id", "invalid-token"))
+            assertThatThrownBy(() -> studentService.getExamData("test-uuid", "exam-id", "invalid-token").block())
                     .isInstanceOf(ApiException.class)
                     .satisfies(ex -> {
                         ApiException apiEx = (ApiException) ex;
@@ -164,7 +167,7 @@ class StudentServiceTest {
                     .setBody("{\"error\": \"Exam not found\"}"));
 
             // Act & Assert
-            assertThatThrownBy(() -> studentService.getExamData("uuid", "unknown-exam", "Bearer token"))
+            assertThatThrownBy(() -> studentService.getExamData("uuid", "unknown-exam", "Bearer token").block())
                     .isInstanceOf(ApiException.class)
                     .satisfies(ex -> {
                         ApiException apiEx = (ApiException) ex;

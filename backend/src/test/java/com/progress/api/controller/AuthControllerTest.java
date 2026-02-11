@@ -18,9 +18,12 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import reactor.core.publisher.Mono;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -63,12 +66,16 @@ class AuthControllerTest {
                     .message("Authentication successful")
                     .build();
 
-            when(authService.authenticate(any(LoginRequest.class))).thenReturn(response);
+            when(authService.authenticate(any(LoginRequest.class))).thenReturn(Mono.just(response));
 
-            // Act & Assert
-            mockMvc.perform(post("/api/auth/login")
+            // Act & Assert (async)
+            MvcResult mvcResult = mockMvc.perform(post("/api/auth/login")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+            mockMvc.perform(asyncDispatch(mvcResult))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.token").value("jwt-token"))
                     .andExpect(jsonPath("$.refreshToken").doesNotExist())
@@ -86,12 +93,16 @@ class AuthControllerTest {
             LoginRequest request = new LoginRequest("wronguser", "wrongpass");
 
             when(authService.authenticate(any(LoginRequest.class)))
-                    .thenThrow(new ApiException("Authentication failed", HttpStatus.UNAUTHORIZED));
+                    .thenReturn(Mono.error(new ApiException("Authentication failed", HttpStatus.UNAUTHORIZED)));
 
-            // Act & Assert
-            mockMvc.perform(post("/api/auth/login")
+            // Act & Assert (async)
+            MvcResult mvcResult = mockMvc.perform(post("/api/auth/login")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(objectMapper.writeValueAsString(request)))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+            mockMvc.perform(asyncDispatch(mvcResult))
                     .andExpect(status().isUnauthorized());
         }
 
@@ -106,7 +117,7 @@ class AuthControllerTest {
                     }
                     """;
 
-            // Act & Assert
+            // Act & Assert (validation happens synchronously)
             mockMvc.perform(post("/api/auth/login")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(requestBody))
@@ -124,7 +135,7 @@ class AuthControllerTest {
                     }
                     """;
 
-            // Act & Assert
+            // Act & Assert (validation happens synchronously)
             mockMvc.perform(post("/api/auth/login")
                     .contentType(MediaType.APPLICATION_JSON)
                     .content(requestBody))
@@ -134,7 +145,7 @@ class AuthControllerTest {
         @Test
         @DisplayName("should return 400 on missing request body")
         void shouldReturn400OnMissingBody() throws Exception {
-            // Act & Assert
+            // Act & Assert (validation happens synchronously)
             mockMvc.perform(post("/api/auth/login")
                     .contentType(MediaType.APPLICATION_JSON))
                     .andExpect(status().isBadRequest());

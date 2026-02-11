@@ -75,7 +75,7 @@ class AuthServiceTest {
             LoginRequest request = new LoginRequest("testuser", "testpass");
 
             // Act
-            LoginResponse response = authService.authenticate(request);
+            LoginResponse response = authService.authenticate(request).block();
 
             // Assert
             assertThat(response).isNotNull();
@@ -100,7 +100,7 @@ class AuthServiceTest {
             LoginRequest request = new LoginRequest("wronguser", "wrongpass");
 
             // Act & Assert
-            assertThatThrownBy(() -> authService.authenticate(request))
+            assertThatThrownBy(() -> authService.authenticate(request).block())
                     .isInstanceOf(ApiException.class)
                     .satisfies(ex -> {
                         ApiException apiEx = (ApiException) ex;
@@ -122,7 +122,7 @@ class AuthServiceTest {
             LoginRequest request = new LoginRequest("testuser", "testpass");
 
             // Act & Assert
-            assertThatThrownBy(() -> authService.authenticate(request))
+            assertThatThrownBy(() -> authService.authenticate(request).block())
                     .isInstanceOf(ApiException.class);
         }
 
@@ -137,7 +137,7 @@ class AuthServiceTest {
             LoginRequest request = new LoginRequest("testuser", "testpass");
 
             // Act & Assert
-            assertThatThrownBy(() -> authService.authenticate(request))
+            assertThatThrownBy(() -> authService.authenticate(request).block())
                     .isInstanceOf(ApiException.class);
         }
     }

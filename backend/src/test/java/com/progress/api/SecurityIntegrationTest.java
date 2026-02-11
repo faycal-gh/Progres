@@ -8,7 +8,9 @@ import org.junit.jupiter.api.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
@@ -19,9 +21,11 @@ import static com.github.tomakehurst.wiremock.client.WireMock.aResponse;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlEqualTo;
 import static com.github.tomakehurst.wiremock.client.WireMock.urlMatching;
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
@@ -80,12 +84,16 @@ class SecurityIntegrationTest {
                                 }
                                 """)));
 
-            // Perform login
+            // Perform login (async)
             LoginRequest loginRequest = new LoginRequest("testuser", "testpass");
 
-            MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+            MvcResult loginAsync = mockMvc.perform(post("/api/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(loginRequest)))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+            MvcResult loginResult = mockMvc.perform(asyncDispatch(loginAsync))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.token").exists())
                     .andExpect(jsonPath("$.uuid").value("student-uuid-123"))
@@ -141,9 +149,13 @@ class SecurityIntegrationTest {
                                 """)));
 
             LoginRequest loginRequest = new LoginRequest("testuser", "testpass");
-            MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
+            MvcResult loginAsync = mockMvc.perform(post("/api/auth/login")
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(loginRequest)))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+            MvcResult loginResult = mockMvc.perform(asyncDispatch(loginAsync))
                     .andExpect(status().isOk())
                     .andReturn();
 
@@ -162,11 +174,18 @@ class SecurityIntegrationTest {
                                     "faculty": "Computer Science"
                                 }
                                 """)));
-
-            // Access protected resource
-            mockMvc.perform(get("/api/student/data")
+            
+            // MockMvc asyncDispatch clearing security context attributes
+            MvcResult dataResult = mockMvc.perform(get("/api/student/data")
                             .header("Authorization", "Bearer " + jwtToken))
-                    .andExpect(status().isOk());
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+            @SuppressWarnings("unchecked")
+            ResponseEntity<Object> asyncResult =
+                    (ResponseEntity<Object>) dataResult.getAsyncResult(5000);
+            assertThat(asyncResult.getStatusCode()).isEqualTo(HttpStatus.OK);
+            assertThat(asyncResult.getBody()).isNotNull();
         }
     }
 }

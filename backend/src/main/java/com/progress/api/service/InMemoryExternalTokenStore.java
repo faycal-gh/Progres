@@ -5,8 +5,10 @@ import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.util.Collections;
 import java.util.Map;
 import java.util.Optional;
+import java.util.Set;
 import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
@@ -20,6 +22,14 @@ public class InMemoryExternalTokenStore implements ExternalTokenStore {
     }
 
     private final Map<String, TokenEntry> tokenStore = new ConcurrentHashMap<>();
+
+    private record AllowedCardsEntry(Set<String> cardIds, long expiresAt) {
+        boolean isExpired() {
+            return System.currentTimeMillis() > expiresAt;
+        }
+    }
+
+    private final Map<String, AllowedCardsEntry> allowedCardsStore = new ConcurrentHashMap<>();
 
     @Override
     public void store(String uuid, String externalToken, long ttlMillis) {
@@ -64,6 +74,7 @@ public class InMemoryExternalTokenStore implements ExternalTokenStore {
             return;
         }
         TokenEntry removed = tokenStore.remove(uuid);
+        allowedCardsStore.remove(uuid);
         if (removed != null) {
             log.debug("Removed external token for UUID: {}", uuid);
         }
@@ -88,6 +99,7 @@ public class InMemoryExternalTokenStore implements ExternalTokenStore {
     @Override
     public void clear() {
         tokenStore.clear();
+        allowedCardsStore.clear();
         log.info("Cleared all external tokens from store");
     }
 
@@ -96,11 +108,38 @@ public class InMemoryExternalTokenStore implements ExternalTokenStore {
         return tokenStore.size();
     }
 
+    @Override
+    public void storeAllowedCards(String uuid, Set<String> cardIds, long ttlMillis) {
+        if (uuid == null || uuid.isBlank() || cardIds == null) {
+            return;
+        }
+        long expiresAt = System.currentTimeMillis() + ttlMillis;
+        allowedCardsStore.put(uuid, new AllowedCardsEntry(Collections.unmodifiableSet(cardIds), expiresAt));
+        log.debug("Cached {} allowed cards for UUID: {}", cardIds.size(), uuid);
+    }
+
+    @Override
+    public Optional<Set<String>> getAllowedCards(String uuid) {
+        if (uuid == null || uuid.isBlank()) {
+            return Optional.empty();
+        }
+        AllowedCardsEntry entry = allowedCardsStore.get(uuid);
+        if (entry == null) {
+            return Optional.empty();
+        }
+        if (entry.isExpired()) {
+            allowedCardsStore.remove(uuid);
+            return Optional.empty();
+        }
+        return Optional.of(entry.cardIds());
+    }
+
     @Scheduled(fixedRate = 300000)
     public void cleanupExpiredTokens() {
         int beforeSize = tokenStore.size();
 
         tokenStore.entrySet().removeIf(entry -> entry.getValue().isExpired());
+        allowedCardsStore.entrySet().removeIf(entry -> entry.getValue().isExpired());
 
         int removed = beforeSize - tokenStore.size();
         if (removed > 0) {

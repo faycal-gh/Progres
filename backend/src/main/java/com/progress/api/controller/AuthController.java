@@ -23,6 +23,7 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
+import reactor.core.publisher.Mono;
 
 import java.util.Arrays;
 
@@ -45,19 +46,20 @@ public class AuthController {
 
     @PostMapping("/login")
     @Operation(summary = "Login", description = "Authenticate user and get JWT token")
-    public ResponseEntity<LoginResponse> login(
+    public Mono<ResponseEntity<LoginResponse>> login(
             @Valid @RequestBody LoginRequest request,
             HttpServletResponse response) {
-        LoginResponse authResponse = authService.authenticate(request);
+        return authService.authenticate(request)
+                .map(authResponse -> {
+                    setRefreshTokenCookie(response, authResponse.getRefreshToken());
 
-        setRefreshTokenCookie(response, authResponse.getRefreshToken());
-
-        return ResponseEntity.ok(LoginResponse.builder()
-                .token(authResponse.getToken())
-                .uuid(authResponse.getUuid())
-                .message(authResponse.getMessage())
-                .refreshToken(null)
-                .build());
+                    return ResponseEntity.ok(LoginResponse.builder()
+                            .token(authResponse.getToken())
+                            .uuid(authResponse.getUuid())
+                            .message(authResponse.getMessage())
+                            .refreshToken(null)
+                            .build());
+                });
     }
 
     @PostMapping("/refresh")

@@ -12,6 +12,8 @@ import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
+import reactor.core.publisher.Mono;
 
 import java.util.Collections;
 import java.util.Map;
@@ -19,6 +21,7 @@ import java.util.Map;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.authentication;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
@@ -64,11 +67,15 @@ class StudentControllerTest {
                     "faculty", "Computer Science"
             );
 
-            when(studentService.getStudentData(anyString(), anyString())).thenReturn(studentData);
+            when(studentService.getStudentData(anyString(), anyString())).thenReturn(Mono.just(studentData));
 
-            // Act & Assert
-            mockMvc.perform(get("/api/student/data")
+            // Act & Assert (async)
+            MvcResult mvcResult = mockMvc.perform(get("/api/student/data")
                             .with(authentication(createMockAuthentication())))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+            mockMvc.perform(asyncDispatch(mvcResult))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.id").value(1))
                     .andExpect(jsonPath("$.name").value("John Doe"));
@@ -91,11 +98,15 @@ class StudentControllerTest {
                     )
             );
 
-            when(studentService.getExamData(anyString(), anyString(), anyString())).thenReturn(examData);
+            when(studentService.getExamData(anyString(), anyString(), anyString())).thenReturn(Mono.just(examData));
 
-            // Act & Assert
-            mockMvc.perform(get("/api/student/exams/exam-123")
+            // Act & Assert (async)
+            MvcResult mvcResult = mockMvc.perform(get("/api/student/exams/exam-123")
                             .with(authentication(createMockAuthentication())))
+                    .andExpect(request().asyncStarted())
+                    .andReturn();
+
+            mockMvc.perform(asyncDispatch(mvcResult))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.examId").value("exam-123"));
         }
