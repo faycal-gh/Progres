@@ -4,7 +4,7 @@ spring:
     name: Progres-api-test
 
 server:
-  port: 0  # Random port for tests
+  port: 0 # Random port for tests
 
 # JWT Configuration for tests
 jwt:
@@ -16,6 +16,9 @@ jwt:
 external-api:
   base-url: http://localhost:${wiremock.server.port:8089}
   timeout: 5000
+
+external-token-store:
+  type: in-memory
 
 # Rate Limiting - disabled for tests
 rate-limit:

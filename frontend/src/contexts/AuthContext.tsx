@@ -11,7 +11,6 @@ import {
 } from "react";
 import { useRouter } from "next/navigation";
 
-
 const API_BASE_URL =
   process.env.NEXT_PUBLIC_API_URL || "http://localhost:8080/api";
 
@@ -36,8 +35,9 @@ interface AuthContextType {
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
 
-
-function decodeJwtPayload(token: string): { exp?: number;[key: string]: unknown } | null {
+function decodeJwtPayload(
+  token: string,
+): { exp?: number; [key: string]: unknown } | null {
   try {
     const parts = token.split(".");
     if (parts.length !== 3) return null;
@@ -47,19 +47,17 @@ function decodeJwtPayload(token: string): { exp?: number;[key: string]: unknown 
   }
 }
 
-
 function isTokenExpired(token: string): boolean {
   const payload = decodeJwtPayload(token);
   if (!payload?.exp) return true;
 
-  return Date.now() >= (payload.exp * 1000) - 30000;
+  return Date.now() >= payload.exp * 1000 - 30000;
 }
-
 
 function getTokenExpiresIn(token: string): number {
   const payload = decodeJwtPayload(token);
   if (!payload?.exp) return 0;
-  return (payload.exp * 1000) - Date.now();
+  return payload.exp * 1000 - Date.now();
 }
 
 export function AuthProvider({ children }: { children: ReactNode }) {
@@ -70,11 +68,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [studentData, setStudentData] = useState<StudentData>(null);
   const router = useRouter();
 
-
   const refreshTimerRef = useRef<NodeJS.Timeout | null>(null);
 
   const isRefreshingRef = useRef(false);
-
 
   const handleForceLogout = useCallback(() => {
     if (refreshTimerRef.current) {
@@ -90,7 +86,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setIsAuthenticated(false);
     router.push("/login");
   }, [router]);
-
 
   const refreshAccessToken = useCallback(async (): Promise<string | null> => {
     if (isRefreshingRef.current) {
@@ -117,7 +112,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setToken(data.token);
 
       return data.token;
-
     } catch (error) {
       return null;
     } finally {
@@ -125,77 +119,77 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
-
-  const scheduleTokenRefresh = useCallback((accessToken: string) => {
-    if (refreshTimerRef.current) {
-      clearTimeout(refreshTimerRef.current);
-    }
-
-    const expiresIn = getTokenExpiresIn(accessToken);
-
-    const refreshIn = Math.max(expiresIn - 120000, 10000);
-
-    refreshTimerRef.current = setTimeout(async () => {
-      const newToken = await refreshAccessToken();
-      if (newToken) {
-        scheduleTokenRefresh(newToken);
-      } else {
-        handleForceLogout();
+  const scheduleTokenRefresh = useCallback(
+    (accessToken: string) => {
+      if (refreshTimerRef.current) {
+        clearTimeout(refreshTimerRef.current);
       }
-    }, refreshIn);
-  }, [refreshAccessToken, handleForceLogout]);
 
+      const expiresIn = getTokenExpiresIn(accessToken);
 
-  const authenticatedFetch = useCallback(async (
-    url: string,
-    options: RequestInit = {}
-  ): Promise<Response> => {
-    // ... (unchanged)
-    let currentToken = token || localStorage.getItem("token");
+      const refreshIn = Math.max(expiresIn - 120000, 10000);
 
-    // Check if token is expired, try to refresh first
-    if (currentToken && isTokenExpired(currentToken)) {
-      const newToken = await refreshAccessToken();
-      if (newToken) {
-        currentToken = newToken;
-        scheduleTokenRefresh(newToken);
-      } else {
-        handleForceLogout();
-        throw new Error("Session expired. Please login again.");
+      refreshTimerRef.current = setTimeout(async () => {
+        const newToken = await refreshAccessToken();
+        if (newToken) {
+          scheduleTokenRefresh(newToken);
+        } else {
+          handleForceLogout();
+        }
+      }, refreshIn);
+    },
+    [refreshAccessToken, handleForceLogout],
+  );
+
+  const authenticatedFetch = useCallback(
+    async (url: string, options: RequestInit = {}): Promise<Response> => {
+      // ... (unchanged)
+      let currentToken = token || localStorage.getItem("token");
+
+      // Check if token is expired, try to refresh first
+      if (currentToken && isTokenExpired(currentToken)) {
+        const newToken = await refreshAccessToken();
+        if (newToken) {
+          currentToken = newToken;
+          scheduleTokenRefresh(newToken);
+        } else {
+          handleForceLogout();
+          throw new Error("Session expired. Please login again.");
+        }
       }
-    }
 
-    const response = await fetch(url, {
-      ...options,
-      credentials: "include", // Always include cookies
-      headers: {
-        ...options.headers,
-        Authorization: `Bearer ${currentToken}`,
-      },
-    });
+      const response = await fetch(url, {
+        ...options,
+        credentials: "include", // Always include cookies
+        headers: {
+          ...options.headers,
+          Authorization: `Bearer ${currentToken}`,
+        },
+      });
 
-    // If 401, try refresh and retry once
-    if (response.status === 401) {
-      const newToken = await refreshAccessToken();
-      if (newToken) {
-        scheduleTokenRefresh(newToken);
-        return fetch(url, {
-          ...options,
-          credentials: "include",
-          headers: {
-            ...options.headers,
-            Authorization: `Bearer ${newToken}`,
-          },
-        });
-      } else {
-        handleForceLogout();
-        throw new Error("Session expired. Please login again.");
+      // If 401, try refresh and retry once
+      if (response.status === 401) {
+        const newToken = await refreshAccessToken();
+        if (newToken) {
+          scheduleTokenRefresh(newToken);
+          return fetch(url, {
+            ...options,
+            credentials: "include",
+            headers: {
+              ...options.headers,
+              Authorization: `Bearer ${newToken}`,
+            },
+          });
+        } else {
+          handleForceLogout();
+          throw new Error("Session expired. Please login again.");
+        }
       }
-    }
 
-    return response;
-  }, [token, refreshAccessToken, scheduleTokenRefresh, handleForceLogout]);
-
+      return response;
+    },
+    [token, refreshAccessToken, scheduleTokenRefresh, handleForceLogout],
+  );
 
   useEffect(() => {
     const initAuth = async () => {
@@ -242,7 +236,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, [scheduleTokenRefresh, refreshAccessToken]);
 
-
   const login = async (username: string, password: string) => {
     try {
       const authResponse = await fetch(`${API_BASE_URL}/auth/login`, {
@@ -274,13 +267,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         },
       });
 
-      const fetchedStudentData = await studentResponse.json();
-
       if (!studentResponse.ok) {
-        throw new Error(
-          fetchedStudentData.message || "فشل في جلب بيانات الطالب",
-        );
+        const text = await studentResponse.text();
+        let errorMessage = "فشل في جلب بيانات الطالب";
+        if (text) {
+          try {
+            const errorData = JSON.parse(text);
+            errorMessage = errorData.message || errorMessage;
+          } catch {
+            // response body is not JSON, use default message
+          }
+        }
+        throw new Error(errorMessage);
       }
+
+      const fetchedStudentData = await studentResponse.json();
 
       // Store access token and data (refresh token is in httpOnly cookie)
       localStorage.setItem("token", jwtToken);
@@ -302,13 +303,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-
   const fetchExamData = async (id: string) => {
     if (!token && !localStorage.getItem("token")) {
       throw new Error("Not authenticated");
     }
 
-    const response = await authenticatedFetch(`${API_BASE_URL}/student/exams/${id}`);
+    const response = await authenticatedFetch(
+      `${API_BASE_URL}/student/exams/${id}`,
+    );
 
     if (!response.ok) {
       const text = await response.text();
@@ -335,7 +337,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-
   const fetchStudentInfo = async () => {
     if (!token && !localStorage.getItem("token")) {
       throw new Error("Not authenticated");
@@ -356,13 +357,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return await response.json();
   };
 
-
   const fetchCCGrades = async (cardId: string) => {
     if (!token && !localStorage.getItem("token")) {
       throw new Error("Not authenticated");
     }
 
-    const response = await authenticatedFetch(`${API_BASE_URL}/student/cc-grades/${cardId}`);
+    const response = await authenticatedFetch(
+      `${API_BASE_URL}/student/cc-grades/${cardId}`,
+    );
 
     if (!response.ok) {
       const text = await response.text();
@@ -389,13 +391,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-
   const fetchExamGrades = async (cardId: string) => {
     if (!token && !localStorage.getItem("token")) {
       throw new Error("Not authenticated");
     }
 
-    const response = await authenticatedFetch(`${API_BASE_URL}/student/exam-grades/${cardId}`);
+    const response = await authenticatedFetch(
+      `${API_BASE_URL}/student/exam-grades/${cardId}`,
+    );
 
     if (!response.ok) {
       const text = await response.text();
@@ -422,7 +425,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
   };
 
-
   const fetchStudentPhoto = async (): Promise<string | null> => {
     if (!token && !localStorage.getItem("token")) {
       throw new Error("Not authenticated");
@@ -448,14 +450,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     return text || null;
   };
 
-
   const fetchSubjects = async (offerId: string, levelId: string) => {
     if (!token && !localStorage.getItem("token")) {
       throw new Error("Not authenticated");
     }
 
     const response = await authenticatedFetch(
-      `${API_BASE_URL}/student/subjects/${offerId}/${levelId}`
+      `${API_BASE_URL}/student/subjects/${offerId}/${levelId}`,
     );
 
     if (!response.ok) {
@@ -482,7 +483,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       return [];
     }
   };
-
 
   const logout = async () => {
     // Clear refresh timer

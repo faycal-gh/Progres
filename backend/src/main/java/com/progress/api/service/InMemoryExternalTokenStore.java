@@ -1,6 +1,7 @@
 package com.progress.api.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 
@@ -13,6 +14,7 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
+@ConditionalOnProperty(name = "external-token-store.type", havingValue = "in-memory", matchIfMissing = true)
 public class InMemoryExternalTokenStore implements ExternalTokenStore {
 
     private record TokenEntry(String token, long expiresAt) {

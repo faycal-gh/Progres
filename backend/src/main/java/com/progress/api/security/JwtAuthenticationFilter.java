@@ -36,12 +36,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
         final String jwt;
         final String uuid;
 
+        log.info("JWT Filter: {} {} | Auth header: {}", 
+                request.getMethod(), 
+                request.getRequestURI(), 
+                authHeader != null ? (authHeader.startsWith("Bearer ") ? "Bearer [present]" : authHeader) : "null");
+
         if (authHeader == null || !authHeader.startsWith("Bearer ")) {
             filterChain.doFilter(request, response);
             return;
         }
 
         jwt = authHeader.substring(7);
+
+        log.debug("Processing JWT for request: {} {}", request.getMethod(), request.getRequestURI());
 
         if (tokenBlacklist.isBlacklisted(jwt)) {
             log.debug("Rejected blacklisted token");
@@ -51,17 +58,19 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (jwtTokenProvider.isTokenValid(jwt)) {
             uuid = jwtTokenProvider.extractUuid(jwt);
+            log.debug("JWT valid for UUID: {}", uuid);
             
             // Retrieve external token from server-side storage
             Optional<String> externalTokenOpt = externalTokenStore.retrieve(uuid);
             
             if (externalTokenOpt.isEmpty()) {
-                log.debug("No external token found for UUID: {}, session may have expired", uuid);
+                log.warn("No external token found for UUID: {}, session may have expired", uuid);
                 filterChain.doFilter(request, response);
                 return;
             }
 
             String externalToken = externalTokenOpt.get();
+            log.debug("External token retrieved, setting security context");
 
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     uuid,
@@ -69,6 +78,8 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
                     Collections.emptyList());
             authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authToken);
+        } else {
+            log.warn("JWT validation failed for token: {}...", jwt.substring(0, Math.min(20, jwt.length())));
         }
 
         filterChain.doFilter(request, response);

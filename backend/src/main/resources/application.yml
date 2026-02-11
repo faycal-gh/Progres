@@ -3,6 +3,11 @@ spring:
     name: Progres-api
   config:
     import: optional:file:../.env[.properties]
+  data:
+    redis:
+      host: ${REDIS_HOST:localhost}
+      port: ${REDIS_PORT:6379}
+      password: ${REDIS_PASSWORD:}
 
 server:
   port: 8080
@@ -22,6 +27,9 @@ jwt:
 external-api:
   base-url: https://progres.mesrs.dz/api
   timeout: 10000
+
+external-token-store:
+  type: ${EXTERNAL_TOKEN_STORE_TYPE:redis}
 
 rate-limit:
   requests: 100
