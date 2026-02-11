@@ -20,6 +20,7 @@ public class AuthService {
 
     private final WebClient webClient;
     private final JwtTokenProvider jwtTokenProvider;
+    private final ExternalTokenStore externalTokenStore;
 
     public LoginResponse authenticate(LoginRequest request) {
         try {
@@ -34,20 +35,23 @@ public class AuthService {
                 throw new ApiException("Authentication failed: Invalid response from server", HttpStatus.UNAUTHORIZED);
             }
 
-            String jwtToken = jwtTokenProvider.generateToken(
-                    externalResponse.getUuid(),
-                    externalResponse.getToken()
-            );
+            String uuid = externalResponse.getUuid();
+            String externalToken = externalResponse.getToken();
 
-            String refreshToken = jwtTokenProvider.generateRefreshToken(
-                    externalResponse.getUuid(),
-                    externalResponse.getToken()
-            );
+            // Store external token server-side, keyed by UUID
+            // Token TTL matches the refresh token expiration for maximum session length
+            externalTokenStore.store(uuid, externalToken, jwtTokenProvider.getRefreshExpiration());
+
+            // Generate clean JWTs without the external token embedded
+            String jwtToken = jwtTokenProvider.generateToken(uuid);
+            String refreshToken = jwtTokenProvider.generateRefreshToken(uuid);
+
+            log.info("User authenticated successfully: {}", uuid);
 
             return LoginResponse.builder()
                     .token(jwtToken)
                     .refreshToken(refreshToken)
-                    .uuid(externalResponse.getUuid())
+                    .uuid(uuid)
                     .message("Authentication successful")
                     .build();
 
@@ -78,5 +82,9 @@ public class AuthService {
             }
             throw new ApiException("Authentication failed: " + detail, HttpStatus.INTERNAL_SERVER_ERROR);
         }
+    }    
+    public void removeExternalToken(String uuid) {
+        externalTokenStore.remove(uuid);
+        log.debug("Removed external token for user: {}", uuid);
     }
 }

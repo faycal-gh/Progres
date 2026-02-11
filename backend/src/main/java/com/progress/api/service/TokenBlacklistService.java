@@ -10,11 +10,12 @@ import java.util.concurrent.ConcurrentHashMap;
 
 @Slf4j
 @Service
-public class TokenBlacklistService {
+public class TokenBlacklistService implements TokenBlacklist {
 
     private final Map<String, Long> blacklistedTokens = new ConcurrentHashMap<>();
 
-    public void blacklistToken(String token, long expirationTimeMs) {
+    @Override
+    public void blacklist(String token, long expirationTimeMs) {
         if (token == null || token.isBlank()) {
             log.warn("Attempted to blacklist null or blank token");
             return;
@@ -23,6 +24,7 @@ public class TokenBlacklistService {
         log.debug("Token blacklisted, expiration: {}", Instant.ofEpochMilli(expirationTimeMs));
     }
 
+    @Override
     public boolean isBlacklisted(String token) {
         if (token == null || token.isBlank()) {
             return false;
@@ -30,12 +32,19 @@ public class TokenBlacklistService {
         return blacklistedTokens.containsKey(token);
     }
 
-    public void removeFromBlacklist(String token) {
+    @Override
+    public void remove(String token) {
         blacklistedTokens.remove(token);
     }
 
-    public int getBlacklistSize() {
+    @Override
+    public int size() {
         return blacklistedTokens.size();
+    }
+
+    @Override
+    public void clear() {
+        blacklistedTokens.clear();
     }
 
     @Scheduled(fixedRate = 300000)
@@ -50,9 +59,5 @@ public class TokenBlacklistService {
             log.info("Cleaned up {} expired tokens from blacklist. Remaining: {}",
                     removed, blacklistedTokens.size());
         }
-    }
-
-    public void clearBlacklist() {
-        blacklistedTokens.clear();
     }
 }

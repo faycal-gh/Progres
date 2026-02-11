@@ -14,6 +14,9 @@ import org.springframework.web.reactive.function.client.WebClient;
 import java.io.IOException;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.*;
 
 @DisplayName("AuthService Tests")
 class AuthServiceTest {
@@ -21,6 +24,7 @@ class AuthServiceTest {
     private MockWebServer mockWebServer;
     private AuthService authService;
     private JwtTokenProvider jwtTokenProvider;
+    private ExternalTokenStore externalTokenStore;
 
     @BeforeEach
     void setUp() throws IOException {
@@ -31,13 +35,17 @@ class AuthServiceTest {
                 .baseUrl(mockWebServer.url("/").toString())
                 .build();
 
-        jwtTokenProvider = org.mockito.Mockito.mock(JwtTokenProvider.class);
-        org.mockito.Mockito.when(jwtTokenProvider.generateToken(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyString()))
+        jwtTokenProvider = mock(JwtTokenProvider.class);
+        when(jwtTokenProvider.generateToken(anyString()))
                 .thenReturn("mock-jwt-token");
-        org.mockito.Mockito.when(jwtTokenProvider.generateRefreshToken(org.mockito.ArgumentMatchers.anyString(), org.mockito.ArgumentMatchers.anyString()))
+        when(jwtTokenProvider.generateRefreshToken(anyString()))
                 .thenReturn("mock-refresh-token");
+        when(jwtTokenProvider.getRefreshExpiration())
+                .thenReturn(604800000L);
 
-        authService = new AuthService(webClient, jwtTokenProvider);
+        externalTokenStore = mock(ExternalTokenStore.class);
+
+        authService = new AuthService(webClient, jwtTokenProvider, externalTokenStore);
     }
 
     @AfterEach
@@ -75,6 +83,9 @@ class AuthServiceTest {
             assertThat(response.getRefreshToken()).isEqualTo("mock-refresh-token");
             assertThat(response.getUuid()).isEqualTo("student-uuid-123");
             assertThat(response.getMessage()).isEqualTo("Authentication successful");
+
+            // Verify external token was stored server-side
+            verify(externalTokenStore).store(eq("student-uuid-123"), eq("external-api-token-xyz"), anyLong());
         }
 
         @Test
@@ -95,6 +106,9 @@ class AuthServiceTest {
                         ApiException apiEx = (ApiException) ex;
                         assertThat(apiEx.getStatus()).isEqualTo(HttpStatus.UNAUTHORIZED);
                     });
+            
+            // Verify no token was stored
+            verify(externalTokenStore, never()).store(anyString(), anyString(), anyLong());
         }
 
         @Test
