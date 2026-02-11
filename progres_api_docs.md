@@ -726,22 +726,6 @@ GET https://progres.mesrs.dz/api/infos/offreFormation/5001/niveau/101/Coefficien
 | coefficientControleIntermediaire | Double | Intermediate assessment coefficient weight |
 | coefficientExamen | Double | Final exam coefficient weight |
 
-#### TP/CC Detection Logic
-```
-- If coefficientControleContinu > 0 → Module has CC/TP component
-- If coefficientExamen > 0 → Module has final exam
-- If coefficientControleContinu = 1.0 and coefficientExamen = 0 → Module is 100% TP/CC
-- If coefficientControleContinu = 0.4 and coefficientExamen = 0.6 → Standard module with 40% TD and 60% exam
-```
-
-> ** Important Note for Average Calculators**: This endpoint returns **assessment type weights** (how much CC vs Exam contributes to the module grade), NOT the overall module coefficient for calculating semester/year averages.
->
-> To get the **module coefficient** (weight of the module in the overall average):
-> 1. **Primary source**: Use `coefficient` from the Bilan endpoint (`/bac/{uuid}/dias/{idDia}/periode/bilans` → `bilanMcs[].coefficient`)
-> 2. **Fallback source**: Use `rattachementMcCoefficient` from Exam Grades endpoint (`/planningSession/dia/{cardId}/noteExamens`)
-> 3. **Last resort**: Allow user to input manually if both sources return 0 or null
-
-**Note**: Only non-null values are returned.
 
 ---
 
@@ -907,31 +891,7 @@ The following table shows which fields from the `/api/infos/bac/{uuid}/dias` end
 | Registration Number | `numeroInscription` | String | Unique registration number |
 | Card ID | `id` | Long | Card ID (used for QR code) |
 
-### Student Card Design Elements
 
-The student card design includes:
-
-1. **Background Elements**:
-   - Dotted pattern overlay (radial gradient)
-   - Green wavy sine wave on right edge (dotted line)
-   - Academic year displayed vertically on right side
-
-2. **Header Section**:
-   - University logo (circular with Arabic/French text)
-   - Ministry title (Arabic)
-   - "Student Card" title (بطاقة الطالب)
-
-3. **Main Content**:
-   - Student photo (from `/api/infos/image/{uuid}`)
-   - Name in Arabic and Latin
-   - Date of birth
-   - Field, specialty, and level
-
-4. **Footer Section**:
-   - ONOU logo (left)
-   - QR code (center) - links to `/api/infos/checkInscription/{cardId}`
-   - ID badge icon (right)
-   - Registration number
 
 ---
 
