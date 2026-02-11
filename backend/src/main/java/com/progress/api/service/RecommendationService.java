@@ -88,7 +88,7 @@ public class RecommendationService {
             String externalToken,
             RecommendationRequest request) {
         try {
-            Object studentDataRaw = studentService.getStudentData(uuid, externalToken);
+            Object studentDataRaw = studentService.getStudentData(uuid, externalToken).block();
             JsonNode studentData = objectMapper.valueToTree(studentDataRaw);
 
             CurrentStatus currentStatus = extractCurrentStatus(studentData);
@@ -578,7 +578,7 @@ public class RecommendationService {
             if (studentData.isArray() && !studentData.isEmpty()) {
                 long diaId = studentData.get(0).path("id").asLong();
                 if (diaId > 0) {
-                    Object examData = studentService.getExamData(uuid, String.valueOf(diaId), externalToken);
+                    Object examData = studentService.getExamData(uuid, String.valueOf(diaId), externalToken).block();
                     return objectMapper.writeValueAsString(examData);
                 }
             }
