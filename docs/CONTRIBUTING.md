@@ -1,6 +1,6 @@
 # Contributing Guidelines
 
-Thank you for your interest in contributing to the **Webetu** project. We are dedicated to maintaining a high standard of code quality, security, and architectural integrity. This document outlines the standards and workflows required for collaboration.
+Thank you for your interest in contributing to the **Progres** project. We are dedicated to maintaining a high standard of code quality, security, and architectural integrity. This document outlines the standards and workflows required for collaboration.
 
 ## Table of Contents
 
@@ -51,8 +51,8 @@ The recommendation engine relies on community-contributed data. To add or update
 1. **Clone the Repository**
 
    ```bash
-   git clone https://github.com/faycal-gh/Webetu.git
-   cd Webetu
+   git clone https://github.com/faycal-gh/Progres.git
+   cd Progres
    ```
 
 2. **Environment Setup**

@@ -1,6 +1,6 @@
-# Webetu API - Backend for Algerian Student Data Access
+# Progres API - Backend for Algerian Student Data Access
 
-[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/faycal-gh/Webetu)
+[![Build Status](https://img.shields.io/badge/build-passing-brightgreen.svg)](https://github.com/faycal-gh/Progres)
 [![Java](https://img.shields.io/badge/Java-17-orange.svg)](https://openjdk.org/projects/jdk/17/)
 [![Spring Boot](https://img.shields.io/badge/Spring%20Boot-3.2.2-brightgreen.svg)](https://spring.io/projects/spring-boot)
 
@@ -32,8 +32,8 @@ This backend provides a **secure REST API layer** for accessing the Algerian Min
 
 1. **Clone the repository:**
    ```bash
-   git clone https://github.com/faycal-gh/Webetu
-   cd Webetu
+   git clone https://github.com/faycal-gh/Progres
+   cd Progres
    ```
 
 2. **Set up environment:**
@@ -180,7 +180,7 @@ Activate with: `export SPRING_PROFILES_ACTIVE=prod`
        │ HTTP + JWT
        │
 ┌──────▼──────────────────────────────────┐
-│          Webetu API Backend              │
+│          Progres API Backend             │
 │  ┌────────────────────────────────┐    │
 │  │   Security Layer               │    │
 │  │  - JWT Authentication          │    │
@@ -285,11 +285,11 @@ Coverage report will be available at: `target/site/jacoco/index.html`
 ./mvnw clean package
 ```
 
-Output: `target/webetu-api-1.0.0.jar`
+Output: `target/progres-api-1.0.0.jar`
 
 ### Build Docker Image
 ```bash
-docker build -t webetu-api:1.0.0 .
+docker build -t progres-api:1.0.0 .
 ```
 
 ### Skip Tests (if needed)
@@ -303,18 +303,18 @@ docker build -t webetu-api:1.0.0 .
 
 1. **Build the image:**
    ```bash
-   docker build -t webetu-api .
+   docker build -t progres-api .
    ```
 
 2. **Run with environment variables:**
    ```bash
    docker run -d \
-     --name webetu-api \
+     --name progres-api \
      -p 8080:8080 \
      -e JWT_SECRET=your-secret-key \
      -e CORS_ALLOWED_ORIGINS=https://your-frontend.com \
      -e SPRING_PROFILES_ACTIVE=prod \
-     webetu-api
+     progres-api
    ```
 
 ### Cloud Deployment
@@ -453,7 +453,7 @@ We welcome contributions! Please see [CONTRIBUTING.md](../docs/CONTRIBUTING.md) 
 
 ##  Related Projects
 
-- **Frontend Repository**: [Webetu Frontend](../frontend/)
+- **Frontend Repository**: [Progres Frontend](../frontend/)
 - **Progres API Documentation**: Contact Algerian Ministry of Higher Education
 
 

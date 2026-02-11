@@ -1,4 +1,4 @@
-# Webetu - Algerian Student Portal
+# Progres - Algerian Student Portal
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Contribution Guidelines](https://img.shields.io/badge/Contributor%20Guide-READ-blue?style=for-the-badge&logo=github)](docs/CONTRIBUTING.md)
@@ -16,8 +16,8 @@ Choose your preferred setup method:
 ### Option 1: Docker (Recommended)
 
 ```bash
-git clone https://github.com/faycal-gh/Webetu
-cd Webetu
+git clone https://github.com/faycal-gh/Progres
+cd Progres
 
 # Set up environment
 cp .env.example .env
@@ -72,7 +72,7 @@ Frontend will be available at: **http://localhost:3000**
 ##  Project Structure
 
 ```
-Webetu/
+Progres/
 ├── .env.example                # Environment template (committed)
 ├── .env                        # Your local secrets (gitignored)
 ├── docker-compose.yml          # Docker orchestration

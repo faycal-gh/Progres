@@ -1,4 +1,4 @@
-# Webetu - Frontend
+# Progres - Frontend
 
 A modern student portal for accessing PROGRES academic data, built with Next.js, React, and TypeScript.
 
