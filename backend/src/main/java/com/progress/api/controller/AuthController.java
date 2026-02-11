@@ -6,7 +6,7 @@ import com.progress.api.dto.LogoutResponse;
 import com.progress.api.exception.ApiException;
 import com.progress.api.security.JwtTokenProvider;
 import com.progress.api.service.AuthService;
-import com.progress.api.service.TokenBlacklistService;
+import com.progress.api.service.TokenBlacklist;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -34,7 +34,7 @@ import java.util.Arrays;
 public class AuthController {
 
     private final AuthService authService;
-    private final TokenBlacklistService tokenBlacklistService;
+    private final TokenBlacklist tokenBlacklist;
     private final JwtTokenProvider jwtTokenProvider;
 
     private static final String REFRESH_TOKEN_COOKIE = "refresh_token";
@@ -77,19 +77,20 @@ public class AuthController {
                 throw new ApiException("Invalid or expired refresh token", HttpStatus.UNAUTHORIZED);
             }
 
-            if (tokenBlacklistService.isBlacklisted(refreshToken)) {
+            if (tokenBlacklist.isBlacklisted(refreshToken)) {
                 clearRefreshTokenCookie(response);
                 throw new ApiException("Refresh token has been revoked", HttpStatus.UNAUTHORIZED);
             }
 
             String uuid = jwtTokenProvider.extractUuid(refreshToken);
-            String externalToken = jwtTokenProvider.extractExternalToken(refreshToken);
 
-            String newAccessToken = jwtTokenProvider.generateToken(uuid, externalToken);
-            String newRefreshToken = jwtTokenProvider.generateRefreshToken(uuid, externalToken);
+            // Generate new tokens (external token remains in server-side storage)
+            String newAccessToken = jwtTokenProvider.generateToken(uuid);
+            String newRefreshToken = jwtTokenProvider.generateRefreshToken(uuid);
 
+            // Blacklist the old refresh token (rotate refresh tokens)
             long oldExpiration = jwtTokenProvider.extractExpiration(refreshToken);
-            tokenBlacklistService.blacklistToken(refreshToken, oldExpiration);
+            tokenBlacklist.blacklist(refreshToken, oldExpiration);
 
             setRefreshTokenCookie(response, newRefreshToken);
 
@@ -118,12 +119,14 @@ public class AuthController {
             HttpServletRequest request,
             HttpServletResponse response) {
         String authHeader = request.getHeader("Authorization");
+        String uuid = null;
 
         if (authHeader != null && authHeader.startsWith("Bearer ")) {
             String token = authHeader.substring(7);
             try {
+                uuid = jwtTokenProvider.extractUuid(token);
                 long expirationTimeMs = jwtTokenProvider.extractExpiration(token);
-                tokenBlacklistService.blacklistToken(token, expirationTimeMs);
+                tokenBlacklist.blacklist(token, expirationTimeMs);
             } catch (Exception e) {
                 log.warn("Could not blacklist access token: {}", e.getMessage());
             }
@@ -132,11 +135,19 @@ public class AuthController {
         String refreshToken = extractRefreshTokenFromCookie(request);
         if (refreshToken != null) {
             try {
+                if (uuid == null) {
+                    uuid = jwtTokenProvider.extractUuid(refreshToken);
+                }
                 long expirationTimeMs = jwtTokenProvider.extractExpiration(refreshToken);
-                tokenBlacklistService.blacklistToken(refreshToken, expirationTimeMs);
+                tokenBlacklist.blacklist(refreshToken, expirationTimeMs);
             } catch (Exception e) {
                 log.warn("Could not blacklist refresh token: {}", e.getMessage());
             }
+        }
+
+        // Remove external token from server-side storage
+        if (uuid != null) {
+            authService.removeExternalToken(uuid);
         }
 
         clearRefreshTokenCookie(response);

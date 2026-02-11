@@ -1,8 +1,9 @@
 package com.progress.api.controller;
 
 import com.progress.api.security.JwtTokenProvider;
+import com.progress.api.service.ExternalTokenStore;
 import com.progress.api.service.StudentService;
-import com.progress.api.service.TokenBlacklistService;
+import com.progress.api.service.TokenBlacklist;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -35,7 +36,10 @@ class StudentControllerTest {
     private JwtTokenProvider jwtTokenProvider;
 
     @MockBean
-    private TokenBlacklistService tokenBlacklistService;
+    private TokenBlacklist tokenBlacklist;
+
+    @MockBean
+    private ExternalTokenStore externalTokenStore;
 
     // Create authentication with String principal/credentials as the controller expects
     private UsernamePasswordAuthenticationToken createMockAuthentication() {

@@ -6,7 +6,7 @@ import com.progress.api.dto.LoginResponse;
 import com.progress.api.exception.ApiException;
 import com.progress.api.security.JwtTokenProvider;
 import com.progress.api.service.AuthService;
-import com.progress.api.service.TokenBlacklistService;
+import com.progress.api.service.TokenBlacklist;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -41,7 +41,7 @@ class AuthControllerTest {
     private JwtTokenProvider jwtTokenProvider;
 
     @MockBean
-    private TokenBlacklistService tokenBlacklistService;
+    private TokenBlacklist tokenBlacklist;
 
     @Nested
     @DisplayName("POST /api/auth/login")

@@ -1,6 +1,7 @@
 package com.progress.api.security;
 
-import com.progress.api.service.TokenBlacklistService;
+import com.progress.api.service.ExternalTokenStore;
+import com.progress.api.service.TokenBlacklist;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
@@ -16,14 +17,15 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 import java.util.Collections;
-
+import java.util.Optional;
 @Slf4j
 @Component
 @RequiredArgsConstructor
 public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
     private final JwtTokenProvider jwtTokenProvider;
-    private final TokenBlacklistService tokenBlacklistService;
+    private final TokenBlacklist tokenBlacklist;
+    private final ExternalTokenStore externalTokenStore;
 
     @Override
     protected void doFilterInternal(
@@ -41,7 +43,7 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         jwt = authHeader.substring(7);
 
-        if (tokenBlacklistService.isBlacklisted(jwt)) {
+        if (tokenBlacklist.isBlacklisted(jwt)) {
             log.debug("Rejected blacklisted token");
             filterChain.doFilter(request, response);
             return;
@@ -49,7 +51,17 @@ public class JwtAuthenticationFilter extends OncePerRequestFilter {
 
         if (jwtTokenProvider.isTokenValid(jwt)) {
             uuid = jwtTokenProvider.extractUuid(jwt);
-            String externalToken = jwtTokenProvider.extractExternalToken(jwt);
+            
+            // Retrieve external token from server-side storage
+            Optional<String> externalTokenOpt = externalTokenStore.retrieve(uuid);
+            
+            if (externalTokenOpt.isEmpty()) {
+                log.debug("No external token found for UUID: {}, session may have expired", uuid);
+                filterChain.doFilter(request, response);
+                return;
+            }
+
+            String externalToken = externalTokenOpt.get();
 
             UsernamePasswordAuthenticationToken authToken = new UsernamePasswordAuthenticationToken(
                     uuid,

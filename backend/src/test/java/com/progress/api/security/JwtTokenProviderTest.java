@@ -36,9 +36,8 @@ class JwtTokenProviderTest {
         @DisplayName("should generate valid access token")
         void shouldGenerateValidAccessToken() {
             String uuid = "test-uuid-123";
-            String externalToken = "Bearer external-token-xyz";
 
-            String token = jwtTokenProvider.generateToken(uuid, externalToken);
+            String token = jwtTokenProvider.generateToken(uuid);
 
             assertThat(token).isNotNull().isNotBlank();
             assertThat(jwtTokenProvider.isTokenValid(token)).isTrue();
@@ -48,9 +47,8 @@ class JwtTokenProviderTest {
         @DisplayName("should generate valid refresh token")
         void shouldGenerateValidRefreshToken() {
             String uuid = "test-uuid-123";
-            String externalToken = "Bearer external-token-xyz";
 
-            String refreshToken = jwtTokenProvider.generateRefreshToken(uuid, externalToken);
+            String refreshToken = jwtTokenProvider.generateRefreshToken(uuid);
 
             assertThat(refreshToken).isNotNull().isNotBlank();
             assertThat(jwtTokenProvider.isTokenValid(refreshToken)).isTrue();
@@ -60,12 +58,33 @@ class JwtTokenProviderTest {
         @DisplayName("should generate different access and refresh tokens")
         void shouldGenerateDifferentTokens() {
             String uuid = "test-uuid-123";
-            String externalToken = "Bearer external-token-xyz";
 
-            String accessToken = jwtTokenProvider.generateToken(uuid, externalToken);
-            String refreshToken = jwtTokenProvider.generateRefreshToken(uuid, externalToken);
+            String accessToken = jwtTokenProvider.generateToken(uuid);
+            String refreshToken = jwtTokenProvider.generateRefreshToken(uuid);
 
             assertThat(accessToken).isNotEqualTo(refreshToken);
+        }
+
+        @Test
+        @DisplayName("should include token type claim in access token")
+        void shouldIncludeAccessTokenType() {
+            String uuid = "test-uuid-123";
+
+            String token = jwtTokenProvider.generateToken(uuid);
+            String tokenType = jwtTokenProvider.extractTokenType(token);
+
+            assertThat(tokenType).isEqualTo("access");
+        }
+
+        @Test
+        @DisplayName("should include token type claim in refresh token")
+        void shouldIncludeRefreshTokenType() {
+            String uuid = "test-uuid-123";
+
+            String refreshToken = jwtTokenProvider.generateRefreshToken(uuid);
+            String tokenType = jwtTokenProvider.extractTokenType(refreshToken);
+
+            assertThat(tokenType).isEqualTo("refresh");
         }
     }
 
@@ -77,24 +96,24 @@ class JwtTokenProviderTest {
         @DisplayName("should extract UUID from token")
         void shouldExtractUuid() {
             String uuid = "test-uuid-123";
-            String externalToken = "Bearer external-token-xyz";
 
-            String token = jwtTokenProvider.generateToken(uuid, externalToken);
+            String token = jwtTokenProvider.generateToken(uuid);
             String extractedUuid = jwtTokenProvider.extractUuid(token);
 
             assertThat(extractedUuid).isEqualTo(uuid);
         }
 
         @Test
-        @DisplayName("should extract external token from token")
-        void shouldExtractExternalToken() {
+        @DisplayName("should not expose external token in JWT (security improvement)")
+        void shouldNotExposeExternalTokenInJwt() {
             String uuid = "test-uuid-123";
-            String externalToken = "Bearer external-token-xyz";
 
-            String token = jwtTokenProvider.generateToken(uuid, externalToken);
-            String extractedExternalToken = jwtTokenProvider.extractExternalToken(token);
-
-            assertThat(extractedExternalToken).isEqualTo(externalToken);
+            String token = jwtTokenProvider.generateToken(uuid);
+            
+            // The JWT should not contain any externalToken claim
+            // Attempting to extract an "externalToken" claim should return null or fail
+            String tokenType = jwtTokenProvider.extractTokenType(token);
+            assertThat(tokenType).isIn("access", "refresh");
         }
     }
 
@@ -105,7 +124,7 @@ class JwtTokenProviderTest {
         @Test
         @DisplayName("should return true for valid token")
         void shouldReturnTrueForValidToken() {
-            String token = jwtTokenProvider.generateToken("uuid", "token");
+            String token = jwtTokenProvider.generateToken("uuid");
 
             assertThat(jwtTokenProvider.isTokenValid(token)).isTrue();
         }
@@ -134,8 +153,25 @@ class JwtTokenProviderTest {
         @DisplayName("should return false for expired token")
         void shouldReturnFalseForExpiredToken() {            
             ReflectionTestUtils.setField(jwtTokenProvider, "jwtExpiration", -1L);
-            String expiredToken = jwtTokenProvider.generateToken("uuid", "token");
+            String expiredToken = jwtTokenProvider.generateToken("uuid");
             assertThat(jwtTokenProvider.isTokenValid(expiredToken)).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("Expiration Configuration")
+    class ExpirationConfiguration {
+
+        @Test
+        @DisplayName("should expose JWT expiration value")
+        void shouldExposeJwtExpiration() {
+            assertThat(jwtTokenProvider.getJwtExpiration()).isEqualTo(JWT_EXPIRATION);
+        }
+
+        @Test
+        @DisplayName("should expose refresh expiration value")
+        void shouldExposeRefreshExpiration() {
+            assertThat(jwtTokenProvider.getRefreshExpiration()).isEqualTo(REFRESH_EXPIRATION);
         }
     }
 }

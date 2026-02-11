@@ -10,7 +10,6 @@ import org.springframework.stereotype.Component;
 import javax.crypto.SecretKey;
 import java.util.Date;
 import java.util.function.Function;
-
 @Component
 public class JwtTokenProvider {
 
@@ -22,19 +21,18 @@ public class JwtTokenProvider {
 
     @Value("${jwt.refresh-expiration}")
     private long refreshExpiration;
-
-    public String generateToken(String uuid, String externalToken) {
-        return buildToken(uuid, externalToken, jwtExpiration);
+    
+    public String generateToken(String uuid) {
+        return buildToken(uuid, jwtExpiration, "access");
+    }    
+    public String generateRefreshToken(String uuid) {
+        return buildToken(uuid, refreshExpiration, "refresh");
     }
 
-    public String generateRefreshToken(String uuid, String externalToken) {
-        return buildToken(uuid, externalToken, refreshExpiration);
-    }
-
-    private String buildToken(String uuid, String externalToken, long expiration) {
+    private String buildToken(String uuid, long expiration, String tokenType) {
         return Jwts.builder()
                 .subject(uuid)
-                .claim("externalToken", externalToken)
+                .claim("type", tokenType)
                 .issuedAt(new Date(System.currentTimeMillis()))
                 .expiration(new Date(System.currentTimeMillis() + expiration))
                 .signWith(getSignInKey())
@@ -45,8 +43,8 @@ public class JwtTokenProvider {
         return extractClaim(token, Claims::getSubject);
     }
 
-    public String extractExternalToken(String token) {
-        return extractClaim(token, claims -> claims.get("externalToken", String.class));
+    public String extractTokenType(String token) {
+        return extractClaim(token, claims -> claims.get("type", String.class));
     }
 
     public boolean isTokenValid(String token) {
@@ -85,5 +83,11 @@ public class JwtTokenProvider {
     private SecretKey getSignInKey() {
         byte[] keyBytes = Decoders.BASE64.decode(secretKey);
         return Keys.hmacShaKeyFor(keyBytes);
+    }
+    public long getJwtExpiration() {
+        return jwtExpiration;
+    }    
+    public long getRefreshExpiration() {
+        return refreshExpiration;
     }
 }
