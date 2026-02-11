@@ -12,10 +12,10 @@
     </parent>
     
     <groupId>com.progress</groupId>
-    <artifactId>webetu-api</artifactId>
+    <artifactId>Progres-api</artifactId>
     <version>1.0.0</version>
-    <name>webetu-api</name>
-    <description>Webetu API - Algerian Student Data Access Backend</description>
+    <name>Progres-api</name>
+    <description>Progres API - Algerian Student Data Access Backend</description>
     
     <properties>
         <java.version>17</java.version>

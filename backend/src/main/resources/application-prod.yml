@@ -1,6 +1,6 @@
 spring:
   application:
-    name: webetu-api
+    name: Progres-api
 
 server:
   port: ${PORT:8080}

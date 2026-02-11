@@ -1,7 +1,7 @@
 # Test Configuration
 spring:
   application:
-    name: webetu-api-test
+    name: Progres-api-test
 
 server:
   port: 0  # Random port for tests

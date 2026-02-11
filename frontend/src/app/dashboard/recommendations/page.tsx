@@ -191,7 +191,7 @@ export default function RecommendationsPage() {
               </p>
               <div className="pt-4">
                 <a
-                  href="https://github.com/faycal-gh/Webetu/blob/main/docs/CONTRIBUTING_SPECIALTIES.md"
+                  href="https://github.com/faycal-gh/Progres/blob/main/docs/CONTRIBUTING_SPECIALTIES.md"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-sm text-amber-600 dark:text-amber-400 hover:underline"
@@ -223,7 +223,7 @@ export default function RecommendationsPage() {
               </p>
               <div className="pt-4">
                 <a
-                  href="https://github.com/faycal-gh/Webetu/blob/main/docs/CONTRIBUTING_SPECIALTIES.md"
+                  href="https://github.com/faycal-gh/Progres/blob/main/docs/CONTRIBUTING_SPECIALTIES.md"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="inline-flex items-center gap-2 text-sm text-orange-600 dark:text-orange-400 hover:underline"

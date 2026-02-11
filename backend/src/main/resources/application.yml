@@ -1,6 +1,6 @@
 spring:
   application:
-    name: webetu-api
+    name: Progres-api
   config:
     import: optional:file:../.env[.properties]
 
