@@ -48,6 +48,12 @@ management:
   endpoint:
     health:
       show-details: never
+      show-components: never
+  health:
+    redis:
+      enabled: false
+    diskspace:
+      enabled: false
   info:
     env:
       enabled: false
