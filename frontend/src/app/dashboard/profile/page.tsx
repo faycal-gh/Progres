@@ -2,7 +2,6 @@
 
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { Card, CardContent } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { AlertCircle, User, GraduationCap, School, Calendar, MapPin } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -86,10 +85,17 @@ export default function ProfilePage() {
 
   if (authLoading || isLoading) {
     return (
-      <div className="min-h-screen bg-background p-3 pb-24">
-        <div className="max-w-md mx-auto space-y-3">
-          <Skeleton className="h-32 w-full rounded-xl" />
-          <Skeleton className="h-40 w-full rounded-xl" />
+      <div
+        dir="rtl"
+        className="min-h-screen flex items-center justify-center px-6 py-10 bg-[#eef7f4] font-[Tajawal,Open_Sans,sans-serif] relative overflow-hidden"
+      >
+        <div className="fixed -top-[10%] -right-[10%] w-1/2 h-1/2 rounded-full bg-[radial-gradient(circle,rgba(28,163,126,0.07)_0%,transparent_70%)] pointer-events-none" />
+        <div className="fixed -bottom-[10%] -left-[10%] w-1/2 h-1/2 rounded-full bg-[radial-gradient(circle,rgba(28,163,126,0.05)_0%,transparent_70%)] pointer-events-none" />
+        <div className="relative z-10 w-full max-w-[440px] space-y-5">
+          <Skeleton className="h-32 w-full rounded-2xl bg-[#e2ece7]" />
+          <Skeleton className="h-16 w-full rounded-2xl bg-[#e2ece7]" />
+          <Skeleton className="h-16 w-full rounded-2xl bg-[#e2ece7]" />
+          <Skeleton className="h-16 w-full rounded-2xl bg-[#e2ece7]" />
         </div>
       </div>
     );
@@ -97,9 +103,14 @@ export default function ProfilePage() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background p-3">
-        <div className="max-w-md mx-auto">
-          <Alert variant="destructive">
+      <div
+        dir="rtl"
+        className="min-h-screen flex items-center justify-center px-6 py-10 bg-[#eef7f4] font-[Tajawal,Open_Sans,sans-serif] relative overflow-hidden"
+      >
+        <div className="fixed -top-[10%] -right-[10%] w-1/2 h-1/2 rounded-full bg-[radial-gradient(circle,rgba(28,163,126,0.07)_0%,transparent_70%)] pointer-events-none" />
+        <div className="fixed -bottom-[10%] -left-[10%] w-1/2 h-1/2 rounded-full bg-[radial-gradient(circle,rgba(28,163,126,0.05)_0%,transparent_70%)] pointer-events-none" />
+        <div className="relative z-10 w-full max-w-[440px]">
+          <Alert variant="destructive" className="rounded-2xl border-none bg-[#fbe9e7] text-[#8a3b32]">
             <AlertCircle className="h-4 w-4" />
             <AlertDescription>{error}</AlertDescription>
           </Alert>
@@ -113,82 +124,99 @@ export default function ProfilePage() {
   const fullNameLatin = `${info?.prenomLatin || latestEnrollment?.individuPrenomLatin || ''} ${info?.nomLatin || latestEnrollment?.individuNomLatin || ''}`.trim();
   const fullNameArabic = `${info?.prenomArabe || latestEnrollment?.individuPrenomArabe || ''} ${info?.nomArabe || latestEnrollment?.individuNomArabe || ''}`.trim();
 
+  const birthDate = info?.dateNaissance
+    ? new Date(info.dateNaissance).toLocaleDateString('fr-FR')
+    : latestEnrollment?.individuDateNaissance
+      ? new Date(latestEnrollment.individuDateNaissance).toLocaleDateString('fr-FR')
+      : "غير متوفر";
+
+  const birthPlace = info?.lieuNaissanceArabe || info?.lieuNaissance || latestEnrollment?.individuLieuNaissance || "غير متوفر";
+
   return (
-    <div className="min-h-screen bg-background pb-24">
-      {/* Header with Avatar */}
-      <div className="bg-primary pt-5 pb-10 px-3">
-        <div className="max-w-md mx-auto flex flex-col items-center text-center">
-          <div className="w-16 h-16 rounded-full bg-primary-foreground/20 flex items-center justify-center mb-2 ring-2 ring-primary-foreground/30 overflow-hidden">
+    <div
+      dir="rtl"
+      className="min-h-screen flex items-center justify-center px-6 py-10 bg-[#eef7f4] font-[Tajawal,Open_Sans,sans-serif] relative overflow-hidden"
+    >
+      <div className="fixed -top-[10%] -right-[10%] w-1/2 h-1/2 rounded-full bg-[radial-gradient(circle,rgba(28,163,126,0.07)_0%,transparent_70%)] pointer-events-none" />
+      <div className="fixed -bottom-[10%] -left-[10%] w-1/2 h-1/2 rounded-full bg-[radial-gradient(circle,rgba(28,163,126,0.05)_0%,transparent_70%)] pointer-events-none" />
+
+      <div className="relative z-10 w-full max-w-[440px] animate-[lfIn_0.75s_cubic-bezier(0.22,1,0.36,1)_both]">
+
+        {/* Titre */}
+        <div className="text-right mb-2">
+          <h1 className="text-[2rem] font-bold text-[#0d1f16] leading-tight">
+            الملف الشخصي
+          </h1>
+        </div>
+
+        <div className="w-10 h-[3px] bg-[#1ca37e] rounded-full ml-auto mb-6" />
+
+        {/* Avatar, style neumorphique comme les champs du login */}
+        <div className="flex flex-col items-center mb-6">
+          <div className="w-24 h-24 rounded-full bg-[#f3f5f4] shadow-[6px_6px_14px_rgba(170,192,182,0.55),_-6px_-6px_14px_rgba(255,255,255,0.92)] ring-4 ring-[#1ca37e]/25 flex items-center justify-center overflow-hidden mb-3">
             {photoBase64 ? (
               <img src={`data:image/jpeg;base64,${photoBase64}`} alt="Profile" className="w-full h-full object-cover" />
             ) : info?.photo ? (
               <img src={info.photo} alt="Profile" className="w-full h-full object-cover" />
             ) : (
-              <User className="w-8 h-8 text-primary-foreground" />
+              <User className="w-9 h-9 text-[#8fa99a]" />
             )}
           </div>
-          <h1 className="text-base font-bold text-primary-foreground uppercase tracking-wide">
+          <p className="text-[1.05rem] font-bold text-[#0d1f16] uppercase tracking-wide text-center">
             {fullNameLatin}
-          </h1>
-          <p className="text-primary-foreground/80 text-sm">{fullNameArabic}</p>
+          </p>
+          <p className="text-[0.85rem] text-[#6b8f7e]">{fullNameArabic}</p>
         </div>
-      </div>
 
-      {/* Info Cards */}
-      <div className="max-w-md mx-auto px-3 -mt-5 space-y-2">
-        {/* University */}
-        <InfoRow
-          icon={<School className="w-4 h-4 text-primary" />}
-          label="الجامعة"
-          value={latestEnrollment?.llEtablissementLatin || "غير متوفر"}
-        />
-
-        {/* Specialty */}
-        <InfoRow
-          icon={<GraduationCap className="w-4 h-4 text-primary" />}
-          label="التخصص"
-          value={latestEnrollment?.ofLlSpecialite || latestEnrollment?.ofLlFiliere || "غير متوفر"}
-        />
-
-        {/* Birth Date */}
-        <InfoRow
-          icon={<Calendar className="w-4 h-4 text-primary" />}
-          label="تاريخ الميلاد"
-          value={info?.dateNaissance
-            ? new Date(info!.dateNaissance).toLocaleDateString('fr-FR')
-            : latestEnrollment?.individuDateNaissance
-              ? new Date(latestEnrollment.individuDateNaissance).toLocaleDateString('fr-FR')
-              : "غير متوفر"}
-        />
-
-        {/* Birth Place */}
-        <InfoRow
-          icon={<MapPin className="w-4 h-4 text-primary" />}
-          label="مكان الميلاد"
-          value={info?.lieuNaissanceArabe || info?.lieuNaissance || latestEnrollment?.individuLieuNaissance || "غير متوفر"}
-        />
-
+        {/* Champs d'info, style identique aux inputs du login */}
+        <div className="space-y-5">
+          <ProfileField
+            label="الجامعة"
+            value={latestEnrollment?.llEtablissementLatin || "غير متوفر"}
+            icon={<School size={17} />}
+          />
+          <ProfileField
+            label="التخصص"
+            value={latestEnrollment?.ofLlSpecialite || latestEnrollment?.ofLlFiliere || "غير متوفر"}
+            icon={<GraduationCap size={17} />}
+          />
+          <ProfileField
+            label="تاريخ الميلاد"
+            value={birthDate}
+            icon={<Calendar size={17} />}
+          />
+          <ProfileField
+            label="مكان الميلاد"
+            value={birthPlace}
+            icon={<MapPin size={17} />}
+          />
+        </div>
       </div>
     </div>
   );
 }
 
-function InfoRow({ icon, label, value }: {
-  icon: React.ReactNode;
+function ProfileField({ label, value, icon }: {
   label: string;
   value: string;
+  icon: React.ReactNode;
 }) {
   return (
-    <Card className="border shadow-sm">
-      <CardContent className="p-3 flex items-start gap-3">
-        <div className="p-2 rounded-full bg-primary/10 shrink-0">
+    <div className="space-y-1.5">
+      <label className="text-[0.82rem] font-semibold text-[#456256]">
+        {label}
+      </label>
+      <div className="relative rounded-2xl bg-[#f3f5f4] shadow-[6px_6px_14px_rgba(170,192,182,0.55),_-6px_-6px_14px_rgba(255,255,255,0.92)]">
+        <div
+          className="h-14 w-full pl-12 pr-5 flex items-center text-right text-[#0d1f16] rounded-2xl"
+          style={{ fontSize: "1rem" }}
+        >
+          {value}
+        </div>
+        <span className="absolute left-[13px] top-1/2 -translate-y-1/2 w-8 h-8 rounded-full bg-[#e8f8f3] text-[#1ca37e] pointer-events-none flex items-center justify-center">
           {icon}
-        </div>
-        <div className="flex-1 min-w-0 text-right">
-          <p className="text-xs text-muted-foreground">{label}</p>
-          <p className="font-medium text-sm text-foreground">{value}</p>
-        </div>
-      </CardContent>
-    </Card>
+        </span>
+      </div>
+    </div>
   );
 }
